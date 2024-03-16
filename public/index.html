@@ -7,10 +7,35 @@
 </head>
 <body>
     <h1>Video Search</h1>
-    <form method="post" action="/search">
-        <input type="text" name="search" placeholder="Search videos">
-        <button type="submit">Submit Form</button>
-    </form>
-    <div class="thumbnails"></div>
+    <input id="vidSearch" type="text" placeholder="Search videos">
+    <button id="searchButton">Search</button>
+    <div id="searchResults"></div>
 </body>
+<script>
+    document.getElementById('searchButton').addEventListener('click', function(event) {
+        const query = document.getElementById('vidSearch').value.trim();
+
+        fetch('/search/videos?search=' + encodeURIComponent(query))
+        .then(response => response.json())
+        .then(data => {
+            // Handle server response
+            displaySearchResults(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
+    function displaySearchResults(results) {
+        // Clear previous search results
+        document.getElementById('searchResults').innerHTML = '';
+
+        // Display new search results
+        results.forEach(result => {
+            const resultElement = document.createElement('div');
+            resultElement.textContent = result.title; // Assuming result is an object with a 'name' property
+            document.getElementById('searchResults').appendChild(resultElement);
+        });
+    }
+</script>
 </html>

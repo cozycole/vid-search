@@ -11,7 +11,7 @@ const pool = new Pool({
 export async function getVideos(search: string): Promise<QueryResult["rows"]> {
     const tsqueryString = search.replace(' ', '|')
     const queryText = `
-        SELECT title 
+        SELECT title, video_url, thumbnail_name 
         FROM video
         WHERE search_vector @@ to_tsquery('english', $1);
     `

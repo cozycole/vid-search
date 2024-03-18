@@ -18,7 +18,6 @@
         fetch('/search/videos?search=' + encodeURIComponent(query))
         .then(response => response.json())
         .then(data => {
-            // Handle server response
             displaySearchResults(data);
         })
         .catch(error => {
@@ -33,7 +32,19 @@
         // Display new search results
         results.forEach(result => {
             const resultElement = document.createElement('div');
-            resultElement.textContent = result.title; // Assuming result is an object with a 'name' property
+            resultElement.textContent = result.title;
+
+            const resultImg = document.createElement('img');
+            resultImg.src = result.thumbnail_name;
+
+            const resultLink = document.createElement('a');
+            resultLink.href = result.video_url;
+            resultLink.target = "_blank";
+            
+            resultLink.appendChild(resultImg)
+            resultElement.append(resultLink)
+            
+            
             document.getElementById('searchResults').appendChild(resultElement);
         });
     }

@@ -7,7 +7,7 @@ router.get('/search/videos', async (req, res) => {
     try {
         const search = String(req.query.search)
         const videos = await getVideos(search)
-        videos.forEach(x=>{
+        videos.forEach( x => {
             if (x.thumbnail_name) {
                 const thumb_path = "/image/video/" + x.thumbnail_name
                 x.thumbnail_name = thumb_path

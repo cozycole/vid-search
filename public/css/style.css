@@ -1,0 +1,28 @@
+body {
+    height: calc(100vh - 100px);
+    display: flex;
+    align-items: center;
+    justify-content: top;
+    flex-direction: column;
+}
+h1 {
+    text-align: center
+}
+
+#searchDiv {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#searchResults {
+    width: 1000px;
+    display: flex;
+    align-items: top;
+    justify-content: left;
+}
+
+#searchResults div img {
+   width: 275px; 
+}

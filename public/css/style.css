@@ -17,10 +17,11 @@ h1 {
 }
 
 #searchResults {
-    width: 1000px;
+    width: 1130px;
     display: flex;
     align-items: top;
     justify-content: left;
+    gap: 10px;
 }
 
 #searchResults div img {

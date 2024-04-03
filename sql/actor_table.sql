@@ -10,6 +10,7 @@ CREATE TABLE actor (
 CREATE TABLE actor_creator_rel (
     id serial primary key,
     actor_id int references actor(id),
-    creator_id int references creator(id)
+    creator_id int references creator(id),
+    UNIQUE (actor_id, creator_id)
 );
 COMMIT;

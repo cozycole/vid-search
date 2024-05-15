@@ -29,12 +29,15 @@ function displaySearchResults(results) {
     // Display new search results
     results.forEach(result => {
         const resultElement = document.createElement('div');
+        resultElement.className = 'videoResult'
+
 
         const resultTitle = document.createElement('h2');
         resultTitle.textContent = result.title;
 
         const resultImg = document.createElement('img');
         resultImg.src = result.thumbnail_name;
+        resultImg.className = 'videoThumbnail'
 
         const resultLink = document.createElement('a');
         resultLink.href = result.video_url;
@@ -46,17 +49,24 @@ function displaySearchResults(results) {
         const creatorImage = document.createElement('img');
         creatorImage.src = result.creator_img_path;
         
-        const creatorDiv = document.createElement('div')
-        creatorDiv.className = 'creator-div'
+        const vidMetaData = document.createElement('div');
+        vidMetaData.className = 'vidMetaData';
+        
+        // Data below the thumbnail that has the video's
+        // title and channel name which are both next
+        // to the creator's profile image
+        vidMetaData.appendChild(resultTitle);
+        vidMetaData.appendChild(creatorName);
 
+        const videoDetails = document.createElement('div');
+        videoDetails.className = 'videoDetails'
+        videoDetails.append(creatorImage);
+        videoDetails.append(vidMetaData);
         
-        creatorDiv.appendChild(creatorImage)
-        creatorDiv.appendChild(creatorName)
-        
-        resultLink.appendChild(resultImg)
-        resultElement.append(resultLink)
-        resultElement.append(resultTitle)
-        resultElement.append(creatorDiv)
+        resultLink.appendChild(resultImg);
+
+        resultElement.append(resultLink);
+        resultElement.append(videoDetails);
 
         document.getElementById('searchResults').appendChild(resultElement);
     });

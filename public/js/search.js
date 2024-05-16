@@ -32,16 +32,16 @@ function displaySearchResults(results) {
         resultElement.className = 'videoResult'
 
 
-        const resultTitle = document.createElement('h2');
-        resultTitle.textContent = result.title;
+        let videoThumbnail = document.createElement('img');
+        videoThumbnail.src = result.thumbnail_name;
+        videoThumbnail.className = 'videoThumbnail'
 
-        const resultImg = document.createElement('img');
-        resultImg.src = result.thumbnail_name;
-        resultImg.className = 'videoThumbnail'
+        videoThumbnail = wrapElementInLink(videoThumbnail, result.video_url)
 
-        const resultLink = document.createElement('a');
-        resultLink.href = result.video_url;
-        resultLink.target = '_blank';
+        let videoTitle = document.createElement('h2');
+        videoTitle.textContent = result.title;
+
+        videoTitle = wrapElementInLink(videoTitle, result.video_url)
         
         const creatorName = document.createElement('h3');
         creatorName.textContent = result.creator_name;
@@ -55,7 +55,7 @@ function displaySearchResults(results) {
         // Data below the thumbnail that has the video's
         // title and channel name which are both next
         // to the creator's profile image
-        vidMetaData.appendChild(resultTitle);
+        vidMetaData.appendChild(videoTitle);
         vidMetaData.appendChild(creatorName);
 
         const videoDetails = document.createElement('div');
@@ -63,11 +63,19 @@ function displaySearchResults(results) {
         videoDetails.append(creatorImage);
         videoDetails.append(vidMetaData);
         
-        resultLink.appendChild(resultImg);
-
-        resultElement.append(resultLink);
+        resultElement.appendChild(videoThumbnail);
         resultElement.append(videoDetails);
 
         document.getElementById('searchResults').appendChild(resultElement);
     });
+}
+
+function wrapElementInLink(element, link) {
+    const linkElement = document.createElement('a');
+    linkElement.href = link;
+    linkElement.target = '_blank';
+    
+    linkElement.appendChild(element);
+
+    return linkElement;
 }

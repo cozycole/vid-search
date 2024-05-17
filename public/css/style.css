@@ -54,20 +54,17 @@ h1 {
 
 .vidMetaData {
     width: 80%;
+    margin-left: 10px;
 }
 
 .vidMetaData h2 {
-    margin-left: 10px;
+    margin: 0;
     font-size: 1.15em;
 }
 
 .vidMetaData h3 {
-    margin-left: 10px;
+    margin: 0;
     font-size: 0.7em;
-}
-
-.videoDetails * {
-   margin: 0; 
 }
 
 /* Have search results stop scaling with screen width */

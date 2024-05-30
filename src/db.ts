@@ -40,12 +40,37 @@ export async function getAllVideos(): Promise<QueryResult["rows"]> {
         JOIN creator AS c
         ON vcr.creator_id = c.id
     `
-    try {
-        const result = await pool.query(queryText)
-        console.log(result.rows)
-        return result.rows
-    } catch (e) {
-        console.log(e)
-        throw new Error("Error retrieving videos")
-    }
+    const result = await pool.query(queryText)
+    console.log(result.rows)
+    return result.rows
+}
+
+export async function insertVideo(title:string,videoUrl:string,createDate:Date,pgRating:string): Promise<Number> {
+    const insertText = `
+        INSERT INTO video (title, video_url, creation_date, pg_rating)
+        VALUES ($1,$2,$3,$4)
+        RETURNING id
+    `
+    const result = await pool.query(insertText, [title, videoUrl, createDate, pgRating])
+    return result.rows[0].id
+}
+
+export async function insertThumbnailName(id:Number, thumbnailName:string) : Promise<void> {
+    const updateText = `
+        UPDATE video 
+        set thumbnail_name = $1
+        WHERE id = $2
+    `
+    await pool.query(updateText, [thumbnailName, id])
+}
+
+export async function updateSearchVector(id: Number): Promise<void> {
+    const updateText = `
+        UPDATE video 
+        set search_vector = to_tsvector('english', title)
+        WHERE id = $1
+    `
+    await pool.query(updateText, [id])
+
+
 }

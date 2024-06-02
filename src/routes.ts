@@ -1,5 +1,5 @@
 import { searchVideos, getAllVideos, insertVideo, insertThumbnailName, updateSearchVector } from './db'
-import { getFileType } from './img'
+import { getFileType, resizeImage,cropThumbnail } from './img'
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import express from 'express'
@@ -61,6 +61,16 @@ router.post('/add/video', upload.single('thumbnail'), async (req, res) => {
         return
     }
 
+    let ftype = await getFileType(req.file.path)
+    
+    if (!["jpg","png"].includes(ftype)) {
+        res.status(400).send({
+            message: `Bad Request: image type ${ftype} not supported`
+        })
+        return
+    }
+    
+
     try {
         let uploadDateObject = new Date(uploadDate)
         let recordId = await insertVideo(
@@ -69,27 +79,34 @@ router.post('/add/video', upload.single('thumbnail'), async (req, res) => {
             uploadDateObject,
             rating.toUpperCase()
         ) 
+
+        await resizeImage(req.file.path, 480, 360)
+        await cropThumbnail(req.file.path)
         
         let ftype = await getFileType(req.file.path)
-        // fname should be of format this-is-title-recordId
-        // example: if title is Good Pals and record Id = 1 and it's a jpg
+        // fname should be of format this-is-title-recordId.jpg
+        // example: if title is Good Pals and record Id = 1 
         // then fname will be good-pals-1.jpg
+        const titleSubstrLength = 15
         let fname = title
                     .toLowerCase()
-                    .substring(0,15)
+                    .substring(0,titleSubstrLength)
                     .split(' ')
                     .join('-')
                     .concat('-', String(recordId))
                     .concat('.', ftype)
 
+        // Move image thumbnail to video directory
         let invokePath = process.cwd()
-        
         let srcPath = path.join(invokePath, req.file.path)
         let destPath = path.join(invokePath, 'public/image/video', fname)
+
         await fs.rename(srcPath, destPath);
-        insertThumbnailName(recordId, fname)
-        updateSearchVector(recordId)
+
+        await insertThumbnailName(recordId, fname)
+        await updateSearchVector(recordId)
         res.sendStatus(200)
+
     } catch (e) {
         console.log(e)
         res.sendStatus(500)

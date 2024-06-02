@@ -2,7 +2,6 @@ import express from 'express'
 import 'dotenv/config'
 import { router } from './routes'
 
-
 const app = express()
 const port = 3000
 const filePath = '/home/colet/programming/learning/img-search/public'

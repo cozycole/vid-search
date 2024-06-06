@@ -11,7 +11,7 @@ const pool = new Pool({
 export async function searchVideos(search: string): Promise<QueryResult["rows"]> {
     const tsqueryString = search.replace(' ', '|')
     const queryText = `
-        SELECT v.title, v.video_url, v.thumbnail_name, 
+        SELECT v.title, v.video_url, v.thumbnail_name, v.creation_date, 
         c.name as creator_name, c.profile_img_path as creator_img_path 
         FROM video AS v
         JOIN video_creator_rel AS vcr
@@ -32,7 +32,7 @@ export async function searchVideos(search: string): Promise<QueryResult["rows"]>
 
 export async function getAllVideos(): Promise<QueryResult["rows"]> {
     const queryText = `
-        SELECT v.title, v.video_url, v.thumbnail_name, 
+        SELECT v.title, v.video_url, v.thumbnail_name, v.creation_date, 
         c.name as creator_name, c.profile_img_path as creator_img_path 
         FROM video AS v
         JOIN video_creator_rel AS vcr

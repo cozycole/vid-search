@@ -7,7 +7,8 @@ CREATE TABLE video (
     video_url VARCHAR NOT NULL,
     thumbnail_name VARCHAR,
     creation_date DATE,
-    pg_rating rating
+    pg_rating rating,
+    insert_timestamp timestamp DEFAULT now()
 );
 
 INSERT INTO video (title, video_url, thumbnail_name, creation_date, pg_rating) VALUES

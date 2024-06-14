@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Video</title>
+    <link rel="stylesheet" href="/css/addvid.css">
+</head>
+<body>
+    <div id="container">
+        <h1>Add Creator</h1>
+        <form id="addForm" enctype="multipart/form-data" action="http://localhost:3000/add/creator" method="POST">
+            <label>
+                Creator Name
+                <input type="text" name="creator">
+            </label>
+            <label>
+                Creator Page URL
+                <input type="text" name="url">
+            </label>
+            <label class="custom-file-label">
+                Upload Thumbnail
+                <input type="file" name="thumbnail" id="imageInput" accept="image/*" onChange="previewImage(event)">
+            </label>
+            <button type="submit">Submit</button>
+        </form>
+        <div id="imagePreview"></div>
+    </div>
+    <script src="/js/addVideo.js"></script>
+</body>
+</html>

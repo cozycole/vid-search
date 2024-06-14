@@ -1,15 +1,6 @@
-#addVideoForm {
+#addForm {
+    width: 30%;
    display: flex;
-   flex-direction: row;
-}
-
-#vidDiv {
-   display: flex; 
-   flex-direction: column;
-}
-
-#characterDiv {
-   display: flex; 
    flex-direction: column;
 }
 
@@ -23,6 +14,7 @@ button {
 
 input[type="file"] {
     display: none;
+    width: 2em;
 }
 
 .custom-file-label {

@@ -45,7 +45,7 @@ export async function getAllVideos(): Promise<QueryResult["rows"]> {
     return result.rows
 }
 
-export async function insertVideo(title:string,videoUrl:string,createDate:Date,pgRating:string): Promise<Number> {
+export async function insertVideo(title:string,videoUrl:string,createDate:Date,pgRating:string): Promise<number> {
     const insertText = `
         INSERT INTO video (title, video_url, creation_date, pg_rating)
         VALUES ($1,$2,$3,$4)
@@ -55,7 +55,7 @@ export async function insertVideo(title:string,videoUrl:string,createDate:Date,p
     return result.rows[0].id
 }
 
-export async function insertThumbnailName(id:Number, thumbnailName:string) : Promise<void> {
+export async function insertThumbnailName(id:number, thumbnailName:string) : Promise<void> {
     const updateText = `
         UPDATE video 
         set thumbnail_name = $1
@@ -64,13 +64,30 @@ export async function insertThumbnailName(id:Number, thumbnailName:string) : Pro
     await pool.query(updateText, [thumbnailName, id])
 }
 
-export async function updateSearchVector(id: Number): Promise<void> {
+export async function updateSearchVector(id: number): Promise<void> {
     const updateText = `
         UPDATE video 
         set search_vector = to_tsvector('english', title)
         WHERE id = $1
     `
     await pool.query(updateText, [id])
+}
 
+export async function insertCreator(creatorName:string,pageUrl:string) : Promise<number> {
+    const insertText = `
+        INSERT INTO creator (name, page_url)
+        VALUES ($1,$2)
+        RETURNING id
+    `
+    const result = await pool.query(insertText, [creatorName, pageUrl])
+    return result.rows[0].id
+}
 
+export async function insertProfileImageName(id:number, imageName:string) : Promise<void> {
+    const updateText = `
+        UPDATE creator 
+        set profile_img_path = $1
+        WHERE id = $2
+    `
+    await pool.query(updateText, [imageName, id])
 }

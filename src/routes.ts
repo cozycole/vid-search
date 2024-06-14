@@ -1,5 +1,12 @@
-import { searchVideos, getAllVideos, insertVideo, insertThumbnailName, updateSearchVector } from './db'
-import { getFileType, resizeImage,cropThumbnail } from './img'
+import { 
+    searchVideos, 
+    getAllVideos, 
+    insertVideo, 
+    insertThumbnailName, 
+    updateSearchVector,
+    insertCreator,
+    insertProfileImageName } from './db'
+import { getFileType, resizeImage,cropThumbnail,getImageDimensions } from './img'
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import express from 'express'
@@ -88,15 +95,8 @@ router.post('/add/video', upload.single('thumbnail'), async (req, res) => {
         // example: if title is Good Pals and record Id = 1 
         // then fname will be good-pals-1.jpg
         const titleSubstrLength = 15
-        let fname = title
-                    .toLowerCase()
-                    .substring(0,titleSubstrLength)
-                    .split(' ')
-                    .join('-')
-                    .concat('-', String(recordId))
-                    .concat('.', ftype)
+        let fname = createImageName(title.substring(0,titleSubstrLength), recordId, ftype)
 
-        // Move image thumbnail to video directory
         let invokePath = process.cwd()
         let srcPath = path.join(invokePath, req.file.path)
         let destPath = path.join(invokePath, 'public/image/video', fname)
@@ -112,3 +112,61 @@ router.post('/add/video', upload.single('thumbnail'), async (req, res) => {
         res.sendStatus(500)
     }
 })
+
+router.get('/add/creator', async (req, res) => {
+    res.sendFile('public/html/addcreator.html', {root: __dirname+'/..'})
+})
+
+router.post('/add/creator', upload.single('thumbnail'), async (req, res) => {
+    let creatorName : string = req.body.creator
+    let url : string = req.body.url
+
+    if (!(creatorName && url && req.file)) {
+        res.status(400).send({
+            message: "Bad Request: insert values not defined"
+        })
+        return
+    }
+
+    let ftype = await getFileType(req.file.path)
+    
+    if (!["jpg","png"].includes(ftype)) {
+        res.status(400).send({
+            message: `Bad Request: image type ${ftype} not supported`
+        })
+        return
+    }
+    
+    try {
+        let recordId = await insertCreator(
+            creatorName, 
+            url
+        ) 
+        let ftype = await getFileType(req.file.path)
+        await resizeImage(req.file.path, 176, 176)
+        
+        let fname = createImageName(creatorName, recordId, ftype)
+
+        let invokePath = process.cwd()
+        let srcPath = path.join(invokePath, req.file.path)
+        let destPath = path.join(invokePath, 'public/image/creator', fname)
+
+        await fs.rename(srcPath, destPath);
+
+        await insertProfileImageName(recordId, fname)
+        res.sendStatus(200)
+
+    } catch (e) {
+        console.log(e)
+        res.sendStatus(500)
+    }
+})
+
+function createImageName(inputString:string, id:number, fileType:string) : string {
+    return inputString
+                .toLowerCase()
+                .split(' ')
+                .join('-')
+                .concat('-', String(id))
+                .concat('.', fileType)
+}

@@ -83,11 +83,21 @@ export async function insertCreator(creatorName:string,pageUrl:string) : Promise
     return result.rows[0].id
 }
 
-export async function insertProfileImageName(id:number, imageName:string) : Promise<void> {
+export async function insertProfileImageName(table: string, id:number, imageName:string) : Promise<void> {
     const updateText = `
-        UPDATE creator 
+        UPDATE ${table} 
         set profile_img_path = $1
         WHERE id = $2
     `
     await pool.query(updateText, [imageName, id])
+}
+
+export async function insertActor(givenName :string,surName:string,birthDate:Date) : Promise<number> {
+    const insertText = `
+        INSERT INTO actor (givenname, surname, birthdate)
+        VALUES ($1,$2,$3)
+        RETURNING id
+    `
+    const result = await pool.query(insertText, [givenName, surName, birthDate])
+    return result.rows[0].id
 }

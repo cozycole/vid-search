@@ -5,6 +5,7 @@ import {
     insertThumbnailName, 
     updateSearchVector,
     insertCreator,
+    insertActor,
     insertProfileImageName } from './db'
 import { getFileType, resizeImage,cropThumbnail,getImageDimensions } from './img'
 import { promises as fs } from 'fs';
@@ -153,7 +154,60 @@ router.post('/add/creator', upload.single('thumbnail'), async (req, res) => {
 
         await fs.rename(srcPath, destPath);
 
-        await insertProfileImageName(recordId, fname)
+        await insertProfileImageName('creator', recordId, fname)
+        res.sendStatus(200)
+
+    } catch (e) {
+        console.log(e)
+        res.sendStatus(500)
+    }
+})
+
+router.get('/add/actor', async (req, res) => {
+    res.sendFile('public/html/addactor.html', {root: __dirname+'/..'})
+})
+
+router.post('/add/actor', upload.single('thumbnail'), async (req, res) => {
+    let givenName : string = req.body.givenName
+    let surname : string = req.body.surname
+    let birthDate = req.body.birthDate
+
+    if (!(givenName && surname && birthDate && req.file)) {
+        res.status(400).send({
+            message: "Bad Request: insert values not defined"
+        })
+        console.log(givenName, surname, birthDate)
+        return
+    }
+
+    let ftype = await getFileType(req.file.path)
+    
+    if (!["jpg","png"].includes(ftype)) {
+        res.status(400).send({
+            message: `Bad Request: image type ${ftype} not supported`
+        })
+        return
+    }
+    
+    try {
+        let birthDateObject = new Date(birthDate)
+        let recordId = await insertActor(
+            givenName,
+            surname, 
+            birthDateObject
+        ) 
+        let ftype = await getFileType(req.file.path)
+        await resizeImage(req.file.path, 176, 176)
+        
+        let fname = createImageName(givenName + ' ' + surname, recordId, ftype)
+
+        let invokePath = process.cwd()
+        let srcPath = path.join(invokePath, req.file.path)
+        let destPath = path.join(invokePath, 'public/image/actor', fname)
+
+        await fs.rename(srcPath, destPath)
+
+        await insertProfileImageName('actor', recordId, fname)
         res.sendStatus(200)
 
     } catch (e) {

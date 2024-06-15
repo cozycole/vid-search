@@ -9,14 +9,18 @@
 <body>
     <div id="container">
         <h1>Add Creator</h1>
-        <form id="addForm" enctype="multipart/form-data" action="http://localhost:3000/add/creator" method="POST">
+        <form id="addForm" enctype="multipart/form-data" action="http://localhost:3000/add/actor" method="POST">
             <label>
-                Creator Name
-                <input type="text" name="creator">
+                Given Name
+                <input type="text" name="givenName">
             </label>
             <label>
-                Creator Page URL
-                <input type="text" name="url">
+                Surname
+                <input type="text" name="surname">
+            </label>
+            <label>
+                Birth Date
+                <input type="date" name="birthDate">
             </label>
             <label class="custom-file-label">
                 Upload Thumbnail

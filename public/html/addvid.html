@@ -10,21 +10,24 @@
     <div id="container">
         <h1>Add Video</h1>
         <form id="addForm" enctype="multipart/form-data" action="http://localhost:3000/add/video" method="POST">
-            <label>
-                Video URL
-                <input type="text" name="url">
-            </label>
+            <div style="display: inline;">
+                <label>
+                    Video URL
+                    <input type="text" name="url" id="videoURL">
+                </label>
+                <button type="button" onclick="autofillMetadata()">Autofill from URL</button>
+            </div>
             <label>
                 Video Title
-                <input type="text" name="title">
+                <input type="text" name="title" id="videoTitle">
             </label>
             <label>
                 Upload Date
-                <input type="date" name="uploadDate">
+                <input type="date" name="uploadDate" id="uploadDate">
             </label>
             <label>
                 Rating
-                <select name="rating">
+                <select name="rating" id="rating">
                     <option value="pg">PG</option>
                     <option value="pg-13">PG-13</option>
                     <option value="r">R</option>
@@ -36,12 +39,12 @@
             </label>
             <label>
                 Video Tags
-                <input type="text" name="tag">
+                <input type="text" name="tag" id="videoTags">
             </label>
             <h2>Person Data</h2>
             <label>
                 Creator Name
-                <input type="text" name="creator">
+                <input type="text" name="creator" id="creatorInput">
             </label>
             <label>
                 Actors

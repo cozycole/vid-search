@@ -12,13 +12,14 @@ export async function searchVideos(search: string): Promise<QueryResult["rows"]>
     const tsqueryString = search.replace(' ', '|')
     const queryText = `
         SELECT v.title, v.video_url, v.thumbnail_name, v.creation_date, 
-        c.name as creator_name, c.profile_img_path as creator_img_path 
+        c.name as creator_name, c.profile_img_path as creator_img_path, c.page_url as creator_url 
         FROM video AS v
-        JOIN video_creator_rel AS vcr
+        LEFT JOIN video_creator_rel AS vcr
         ON v.id = vcr.video_id
-        JOIN creator AS c
+        LEFT JOIN creator AS c
         ON vcr.creator_id = c.id
-        WHERE search_vector @@ to_tsquery('english', $1);
+        WHERE search_vector @@ to_tsquery('english', $1)
+        LIMIT 16;
     `
     try {
         const result = await pool.query(queryText,[tsqueryString])
@@ -33,11 +34,11 @@ export async function searchVideos(search: string): Promise<QueryResult["rows"]>
 export async function getAllVideos(): Promise<QueryResult["rows"]> {
     const queryText = `
         SELECT v.title, v.video_url, v.thumbnail_name, v.creation_date, 
-        c.name as creator_name, c.profile_img_path as creator_img_path 
+        c.name as creator_name, c.profile_img_path as creator_img_path, c.page_url as creator_url
         FROM video AS v
-        JOIN video_creator_rel AS vcr
+        LEFT JOIN video_creator_rel AS vcr
         ON v.id = vcr.video_id
-        JOIN creator AS c
+        LEFT JOIN creator AS c
         ON vcr.creator_id = c.id
     `
     const result = await pool.query(queryText)

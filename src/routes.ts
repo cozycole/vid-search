@@ -1,3 +1,9 @@
+import fs from 'fs'
+import * as path from 'path'
+import express from 'express'
+import multer from 'multer'
+import axios from 'axios'
+import * as url from 'url'
 import { 
     searchVideos, 
     getAllVideos, 
@@ -7,11 +13,11 @@ import {
     insertCreator,
     insertActor,
     insertProfileImageName } from './db'
-import { getFileType, resizeImage,cropThumbnail,getImageDimensions } from './img'
-import { promises as fs } from 'fs';
-import * as path from 'path';
-import express from 'express'
-import multer from 'multer'
+import { getFileType,
+        resizeImage,
+        cropThumbnail} from './img'
+
+const YT_API_KEY = process.env.YT_API_KEY
 
 const upload = multer({dest: 'public/image/actor'})
 
@@ -57,10 +63,10 @@ router.post('/add/video', upload.single('thumbnail'), async (req, res) => {
     console.log(req.body)
     console.log(req.file)
 
-    let title : string = req.body.title
-    let url : string = req.body.url
-    let uploadDate : string = req.body.uploadDate
-    let rating : string = req.body.rating
+    let title = req.body.title as string
+    let url = req.body.url as string
+    let uploadDate = req.body.uploadDate as string
+    let rating = req.body.rating as string
 
     if (!(title && url && uploadDate && rating && req.file)) {
         res.status(400).send({
@@ -102,12 +108,82 @@ router.post('/add/video', upload.single('thumbnail'), async (req, res) => {
         let srcPath = path.join(invokePath, req.file.path)
         let destPath = path.join(invokePath, 'public/image/video', fname)
 
-        await fs.rename(srcPath, destPath);
+        await fs.promises.rename(srcPath, destPath);
 
         await insertThumbnailName(recordId, fname)
         await updateSearchVector(recordId)
         res.sendStatus(200)
 
+    } catch (e) {
+        console.log(e)
+        res.sendStatus(500)
+    }
+})
+
+router.get('/vid/metadata', async (req, res) => {
+    try {
+        const vidId = req.query.vidId as string
+        if (!vidId) {
+            res.sendStatus(403)
+            return
+        }
+
+        const vidDataUrl = 'https://www.googleapis.com/youtube/v3/videos'    
+        let ytRes = await axios.get(vidDataUrl, {
+            params : {
+                part : 'snippet',
+                id : vidId,
+                key : YT_API_KEY
+            }
+        })
+
+        if (ytRes.status != 200) {
+            throw new Error('Error requesting video')
+        }
+
+        console.log(ytRes.data)
+
+        let ytSnippetData = ytRes.data.items[0].snippet
+        let vidData: any = {}
+
+        vidData.title = ytSnippetData.title
+        vidData.uploadDate = ytSnippetData.publishedAt.split('T')[0]
+        vidData.channelTitle = ytSnippetData.channelTitle
+        vidData.channelId = ytSnippetData.channelId
+        vidData.videoId = ytRes.data.items[0].id
+
+        res.status(ytRes.status).send(vidData)
+            
+    } catch (e) {
+        console.log(e)
+        res.sendStatus(500)
+    }
+})
+
+router.get('/vid/thumbnail', async (req, res) => {
+    try {
+        const vidId = req.query.vidId as string
+        if (!vidId) {
+            res.sendStatus(403)
+            return
+        }
+
+        const thumbnailUrl = `https://img.youtube.com/vi/${vidId}/0.jpg`
+        let ytRes = await axios.get(thumbnailUrl, {responseType: 'arraybuffer'})
+
+        if (ytRes.status != 200) {
+            console.log(ytRes)
+            console.log('Error requesting video')
+            res.sendStatus(404)
+        }
+
+        console.log(ytRes.headers)
+        console.log(ytRes.data)
+
+        await fs.promises.writeFile('test.jpg', Buffer.from(ytRes.data, 'binary'))
+        res.status(ytRes.status).send(ytRes.data)
+        // res.sendStatus(200)
+            
     } catch (e) {
         console.log(e)
         res.sendStatus(500)
@@ -152,7 +228,7 @@ router.post('/add/creator', upload.single('thumbnail'), async (req, res) => {
         let srcPath = path.join(invokePath, req.file.path)
         let destPath = path.join(invokePath, 'public/image/creator', fname)
 
-        await fs.rename(srcPath, destPath);
+        await fs.promises.rename(srcPath, destPath);
 
         await insertProfileImageName('creator', recordId, fname)
         res.sendStatus(200)
@@ -205,7 +281,7 @@ router.post('/add/actor', upload.single('thumbnail'), async (req, res) => {
         let srcPath = path.join(invokePath, req.file.path)
         let destPath = path.join(invokePath, 'public/image/actor', fname)
 
-        await fs.rename(srcPath, destPath)
+        await fs.promises.rename(srcPath, destPath)
 
         await insertProfileImageName('actor', recordId, fname)
         res.sendStatus(200)
